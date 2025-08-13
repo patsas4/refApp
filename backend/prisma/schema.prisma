@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId        Int            @id @default(autoincrement())
+  email         String         @unique
+  firstName     String         @db.VarChar(256)
+  lastName      String         @db.VarChar(256)
+  phone         String         @db.VarChar(10)
+  createdAt     DateTime       @default(now())
+  createdBy     String         @db.VarChar(256)
+  deletedAt     DateTime?
+  deletedBy     String?        @db.VarChar(256)
+  leagues       League[]
+  teams         Team[]
+  teamInLeagues TeamInLeague[]
+  createdGames  Game[]         @relation(name: "Created")
+  locations     Location[]
+  fields        Field[]
+  centerGames   Game[]         @relation(name: "Center")
+  ar1Games      Game[]         @relation(name: "Ar1")
+  ar2rGames     Game[]         @relation(name: "Ar2")
+
+  @@index([firstName])
+  @@index([lastName])
+}
+
+model Team {
+  teamId          Int            @id @default(autoincrement())
+  teamName        String         @db.VarChar(256)
+  createdAt       DateTime       @default(now())
+  createdByUserId Int
+  createdBy       User           @relation(fields: [createdByUserId], references: [userId])
+  teamInLeagues   TeamInLeague[]
+  homeGames       Game[]         @relation(name: "Home")
+  awayGames       Game[]         @relation(name: "Away")
+
+  @@unique([teamName, createdByUserId], name: "Unique_Team_User_UserId_TeamName")
+  @@index([createdByUserId])
+}
+
+model League {
+  leagueId        Int            @id @default(autoincrement())
+  leagueName      String         @db.VarChar(256)
+  createdByUserId Int
+  createdBy       User           @relation(fields: [createdByUserId], references: [userId])
+  createdAt       DateTime       @default(now())
+  deletedAt       DateTime?
+  teamInLeagues   TeamInLeague[]
+
+  @@unique([createdByUserId, leagueName], name: "Unique_League_User_UserId_LeagueName")
+  @@index([createdByUserId])
+}
+
+model TeamInLeague {
+  teamInLeagueId  BigInt    @id @default(autoincrement())
+  teamId          Int
+  leagueId        Int
+  createdByUserId Int
+  team            Team      @relation(fields: [teamId], references: [teamId])
+  league          League    @relation(fields: [leagueId], references: [leagueId])
+  createdBy       User      @relation(fields: [createdByUserId], references: [userId])
+  createdAt       DateTime  @default(now())
+  deletedBy       DateTime?
+
+  @@unique([teamId, leagueId], name: "Unique_TeamInLeagues_Team_League_TeamId_LeagueId")
+  @@index([createdByUserId])
+  @@index([leagueId])
+  @@index([teamId])
+}
+
+model Game {
+  gameId          BigInt    @id @default(autoincrement())
+  homeTeamId      Int?
+  awayTeamId      Int?
+  leagueId        Int?
+  createdAt       DateTime  @default(now())
+  createdByUserId Int
+  createdBy       User      @relation(fields: [createdByUserId], references: [userId], name: "Created")
+  date            DateTime?
+  deletedAt       DateTime?
+  homeTeam        Team?     @relation(fields: [homeTeamId], references: [teamId], name: "Home")
+  awayTeam        Team?     @relation(fields: [awayTeamId], references: [teamId], name: "Away")
+  fieldId         Int?
+  field           Field?    @relation(fields: [fieldId], references: [fieldId])
+  centerRefUserId Int?
+  centerRef       User?     @relation(fields: [centerRefUserId], references: [userId], name: "Center")
+  ar1UserId       Int?
+  ar2UserId       Int?
+  ar1             User?     @relation(fields: [ar1UserId], references: [userId], name: "Ar1")
+  ar2             User?     @relation(fields: [ar2UserId], references: [userId], name: "Ar2")
+
+  @@index([createdByUserId])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+  @@index([fieldId])
+  @@index([centerRefUserId])
+  @@index([ar1UserId])
+  @@index([ar2UserId])
+}
+
+model Field {
+  fieldId         Int       @id @default(autoincrement())
+  fieldName       String    @db.VarChar(256)
+  createdByUserId Int
+  createdBy       User      @relation(fields: [createdByUserId], references: [userId])
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  locationId      Int?
+  location        Location? @relation(fields: [locationId], references: [locationId])
+  games           Game[]
+
+  @@index([createdByUserId])
+  @@index([locationId])
+}
+
+model Location {
+  locationId      Int       @id @default(autoincrement())
+  locationName    String    @db.VarChar(256)
+  street          String
+  city            String
+  state           String
+  zipcode         String    @db.VarChar(256)
+  createdByUserId Int
+  createdBy       User      @relation(fields: [createdByUserId], references: [userId])
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  fields          Field[]
+
+  @@index([createdByUserId])
+}
