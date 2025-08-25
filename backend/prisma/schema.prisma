@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,27 +14,32 @@ datasource db {
 }
 
 model User {
-  userId        Int            @id @default(autoincrement())
-  email         String         @unique
-  firstName     String         @db.VarChar(256)
-  lastName      String         @db.VarChar(256)
-  phone         String         @db.VarChar(10)
-  createdAt     DateTime       @default(now())
-  createdBy     String         @db.VarChar(256)
+  userId        Int             @id @default(autoincrement())
+  email         String          @unique
+  firstName     String          @db.VarChar(256)
+  lastName      String          @db.VarChar(256)
+  phone         String          @db.VarChar(10)
+  password      String
+  createdAt     DateTime        @default(now())
+  createdBy     String          @db.VarChar(256)
   deletedAt     DateTime?
-  deletedBy     String?        @db.VarChar(256)
+  deletedBy     String?         @db.VarChar(256)
   leagues       League[]
   teams         Team[]
   teamInLeagues TeamInLeague[]
-  createdGames  Game[]         @relation(name: "Created")
+  createdGames  Game[]          @relation(name: "Created")
   locations     Location[]
   fields        Field[]
-  centerGames   Game[]         @relation(name: "Center")
-  ar1Games      Game[]         @relation(name: "Ar1")
-  ar2rGames     Game[]         @relation(name: "Ar2")
+  centerGames   Game[]          @relation(name: "Center")
+  ar1Games      Game[]          @relation(name: "Ar1")
+  ar2rGames     Game[]          @relation(name: "Ar2")
+  assignerOf    AssignerToRef[] @relation(name: "Assigner")
+  refTo         AssignerToRef[] @relation(name: "Ref")
+  roles         Role[]
 
   @@index([firstName])
   @@index([lastName])
+  @@index([email])
 }
 
 model Team {
@@ -141,4 +145,17 @@ model Location {
   fields          Field[]
 
   @@index([createdByUserId])
+}
+
+model AssignerToRef {
+  assignerToRefId Int  @id @default(autoincrement())
+  assignerId      Int
+  refId           Int
+  assigner        User @relation(fields: [assignerId], references: [userId], name: "Assigner")
+  ref             User @relation(fields: [refId], references: [userId], name: "Ref")
+}
+
+enum Role {
+  Assigner
+  Ref
 }
