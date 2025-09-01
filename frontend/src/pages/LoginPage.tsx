@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -10,21 +11,16 @@ const LoginPage = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (!res.ok) throw new Error("Login failed");
-
-      const data = await res.json();
-      setToken(data.token);
-      navigate("/dashboard"); // redirect to protected page
-    } catch (err) {
-      alert("Invalid credentials");
-    }
+      axios.post("/api/auth/login", { email, password })
+        .then(res => {
+          const data = res.data;
+          axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+          setToken(data.token);
+          navigate("/dashboard"); 
+        })
+        .catch(() => {
+          alert("Invalid credentials");
+        });
   };
 
   return (
