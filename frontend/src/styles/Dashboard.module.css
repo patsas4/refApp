@@ -1,0 +1,15 @@
+.container {
+  min-height: 100vh;  
+  min-width: 99vw;          /* allow vertical centering */
+  display: flex;
+  justify-content: center;      /* horizontal center of .content */
+  align-items: center;          /* vertical center */
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.content {
+  width: 100%;
+  max-width: 980px;
+  text-align: center;
+}

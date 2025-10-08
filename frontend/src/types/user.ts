@@ -31,6 +31,6 @@ export default interface User {
     roles: Role[];
 }
 
-export function getFullName(user: User): string {
-  return `${user.firstName} ${user.lastName}`;
+export function getFullName(user: User | null | undefined): string {
+  return user ? `${user.firstName} ${user.lastName}` : "";
 }

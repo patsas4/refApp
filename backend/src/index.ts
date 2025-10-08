@@ -19,7 +19,7 @@ app.use("/auth", authRoutes);
 // Require auth for everything else
 app.use(authenticate);
 
-app.use("/games", gameRoutes);
+app.use("/game", gameRoutes);
 
 
 // Global error handler

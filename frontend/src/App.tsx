@@ -1,10 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
-//import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard";
 //import Assignments from "./pages/Assignments";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RegistrationPage from "./pages/RegistrationPage";
+import CreateGame from "./pages/CreateGame";
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
 
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
+            <Route path="" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/create-game" element={<CreateGame />} />
           </Route>
         </Routes>
       </Router>

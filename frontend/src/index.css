@@ -66,3 +66,8 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.container {
+  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom) 1rem;
+}
+

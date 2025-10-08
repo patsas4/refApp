@@ -11,16 +11,16 @@ const LoginPage = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-      axios.post("/api/auth/login", { email, password })
-        .then(res => {
-          const data = res.data;
-          axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
-          setToken(data.token);
-          navigate("/dashboard"); 
-        })
-        .catch(() => {
-          alert("Invalid credentials");
-        });
+    try {
+      const res = await axios.post("/api/auth/login", { email, password });
+      const data = res.data;
+      axios.defaults.headers.common["authorization"] = `Bearer ${data.token}`;
+      setToken(data.token);
+      navigate("/dashboard"); 
+    }      
+    catch {
+      alert("Invalid credentials");
+    }
   };
 
   return (

@@ -14,28 +14,29 @@ datasource db {
 }
 
 model User {
-  userId        Int             @id @default(autoincrement())
-  email         String          @unique
-  firstName     String          @db.VarChar(256)
-  lastName      String          @db.VarChar(256)
-  phone         String          @db.VarChar(10)
-  password      String
-  createdAt     DateTime        @default(now())
-  createdBy     String          @db.VarChar(256)
-  deletedAt     DateTime?
-  deletedBy     String?         @db.VarChar(256)
-  leagues       League[]
-  teams         Team[]
-  teamInLeagues TeamInLeague[]
-  createdGames  Game[]          @relation(name: "Created")
-  locations     Location[]
-  fields        Field[]
-  centerGames   Game[]          @relation(name: "Center")
-  ar1Games      Game[]          @relation(name: "Ar1")
-  ar2rGames     Game[]          @relation(name: "Ar2")
-  assignerOf    AssignerToRef[] @relation(name: "Assigner")
-  refTo         AssignerToRef[] @relation(name: "Ref")
-  roles         Role[]
+  userId         Int             @id @default(autoincrement())
+  email          String          @unique
+  firstName      String          @db.VarChar(256)
+  lastName       String          @db.VarChar(256)
+  phone          String          @db.VarChar(10)
+  password       String
+  createdAt      DateTime        @default(now())
+  createdBy      String          @db.VarChar(256)
+  deletedAt      DateTime?
+  deletedBy      String?         @db.VarChar(256)
+  leagues        League[]
+  teams          Team[]
+  teamInLeagues  TeamInLeague[]
+  createdGames   Game[]          @relation(name: "Created")
+  locations      Location[]
+  fields         Field[]
+  centerGames    Game[]          @relation(name: "Center")
+  ar1Games       Game[]          @relation(name: "Ar1")
+  ar2Games       Game[]          @relation(name: "Ar2")
+  assignerOf     AssignerToRef[] @relation(name: "Assigner")
+  refTo          AssignerToRef[] @relation(name: "Ref")
+  roles          Role[]
+  assignerToRefs AssignerToRef[] @relation(name: "CreatedBy")
 
   @@index([firstName])
   @@index([lastName])
@@ -47,7 +48,7 @@ model Team {
   teamName        String         @db.VarChar(256)
   createdAt       DateTime       @default(now())
   createdByUserId Int
-  createdBy       User           @relation(fields: [createdByUserId], references: [userId])
+  createdByUser   User           @relation(fields: [createdByUserId], references: [userId])
   teamInLeagues   TeamInLeague[]
   homeGames       Game[]         @relation(name: "Home")
   awayGames       Game[]         @relation(name: "Away")
@@ -60,7 +61,7 @@ model League {
   leagueId        Int            @id @default(autoincrement())
   leagueName      String         @db.VarChar(256)
   createdByUserId Int
-  createdBy       User           @relation(fields: [createdByUserId], references: [userId])
+  createdByUser   User           @relation(fields: [createdByUserId], references: [userId])
   createdAt       DateTime       @default(now())
   deletedAt       DateTime?
   teamInLeagues   TeamInLeague[]
@@ -76,7 +77,7 @@ model TeamInLeague {
   createdByUserId Int
   team            Team      @relation(fields: [teamId], references: [teamId])
   league          League    @relation(fields: [leagueId], references: [leagueId])
-  createdBy       User      @relation(fields: [createdByUserId], references: [userId])
+  createdByUser   User      @relation(fields: [createdByUserId], references: [userId])
   createdAt       DateTime  @default(now())
   deletedBy       DateTime?
 
@@ -93,19 +94,20 @@ model Game {
   leagueId        Int?
   createdAt       DateTime  @default(now())
   createdByUserId Int
-  createdBy       User      @relation(fields: [createdByUserId], references: [userId], name: "Created")
-  date            DateTime?
+  createdByUser   User      @relation(fields: [createdByUserId], references: [userId], name: "Created")
+  date            String?   @db.VarChar(10)
+  time            String?   @db.VarChar(8)
   deletedAt       DateTime?
   homeTeam        Team?     @relation(fields: [homeTeamId], references: [teamId], name: "Home")
   awayTeam        Team?     @relation(fields: [awayTeamId], references: [teamId], name: "Away")
   fieldId         Int?
   field           Field?    @relation(fields: [fieldId], references: [fieldId])
   centerRefUserId Int?
-  centerRef       User?     @relation(fields: [centerRefUserId], references: [userId], name: "Center")
+  centerRefUser   User?     @relation(fields: [centerRefUserId], references: [userId], name: "Center")
   ar1UserId       Int?
   ar2UserId       Int?
-  ar1             User?     @relation(fields: [ar1UserId], references: [userId], name: "Ar1")
-  ar2             User?     @relation(fields: [ar2UserId], references: [userId], name: "Ar2")
+  ar1User         User?     @relation(fields: [ar1UserId], references: [userId], name: "Ar1")
+  ar2User         User?     @relation(fields: [ar2UserId], references: [userId], name: "Ar2")
 
   @@index([createdByUserId])
   @@index([homeTeamId])
@@ -120,7 +122,7 @@ model Field {
   fieldId         Int       @id @default(autoincrement())
   fieldName       String    @db.VarChar(256)
   createdByUserId Int
-  createdBy       User      @relation(fields: [createdByUserId], references: [userId])
+  createdByUser   User      @relation(fields: [createdByUserId], references: [userId])
   deletedAt       DateTime?
   createdAt       DateTime  @default(now())
   locationId      Int?
@@ -139,7 +141,7 @@ model Location {
   state           String
   zipcode         String    @db.VarChar(256)
   createdByUserId Int
-  createdBy       User      @relation(fields: [createdByUserId], references: [userId])
+  createdByUser   User      @relation(fields: [createdByUserId], references: [userId])
   deletedAt       DateTime?
   createdAt       DateTime  @default(now())
   fields          Field[]
@@ -148,11 +150,15 @@ model Location {
 }
 
 model AssignerToRef {
-  assignerToRefId Int  @id @default(autoincrement())
+  assignerToRefId Int       @id @default(autoincrement())
   assignerId      Int
   refId           Int
-  assigner        User @relation(fields: [assignerId], references: [userId], name: "Assigner")
-  ref             User @relation(fields: [refId], references: [userId], name: "Ref")
+  assigner        User      @relation(fields: [assignerId], references: [userId], name: "Assigner")
+  ref             User      @relation(fields: [refId], references: [userId], name: "Ref")
+  createdAt       DateTime  @default(now())
+  deletedAt       DateTime?
+  createdByUserId Int
+  createdByUser   User      @relation(fields: [createdByUserId], references: [userId], name: "CreatedBy")
 }
 
 enum Role {

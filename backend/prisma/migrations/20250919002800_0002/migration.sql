@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "public"."Game" ALTER COLUMN "date" SET DATA TYPE TIMESTAMPTZ(6);

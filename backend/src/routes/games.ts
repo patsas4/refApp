@@ -1,16 +1,28 @@
 import { NextFunction, Router, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, Game, PrismaClient } from "@prisma/client";
 import { AuthRequest } from "../middleware/auth";
-import { getGamesForUser } from "../service/gameService";
+import { createGame, getGamesForUser } from "../service/gameService";
 import success from "../service/common";
+import { mapToInput } from "../service/mapper";
 
 const prisma = new PrismaClient();
 const router = Router();
 
 router.get("", async (req: AuthRequest, res: Response, next: NextFunction) => { 
     try {
-        const games = getGamesForUser(prisma, req.userId!);
+        const games = await getGamesForUser(prisma, req.userId!);
         success(res, games);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+
+router.post("", async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const gameData = mapToInput<Game, Prisma.GameCreateInput>(req.body, req.userId!);
+        const newGame = await createGame(prisma, gameData);
+        success(res, newGame, 201);
     }
     catch (error) {
         next(error);

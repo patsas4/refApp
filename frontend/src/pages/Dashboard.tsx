@@ -1,35 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import type Game from "../types/game";
-import { getFullName } from "../types/user";
+import { getGameDate } from "../types/game";
+import GameBlock from "../components/GameBlock";
+import styles from "../styles/Dashboard.module.css";
 
 const Dashboard = () => {
-    const [games, setGames] = useState([]);
+    const [games, setGames] = useState<Game[]>([]);
+    const [groupedGames, setGroupedGames] = useState<Record<string, Game[]>>({});
     const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchGames();
+    }, []);
 
     const fetchGames = async () => {
         try {
             const res = await axios.get("/api/game");
-            setGames(res.data);
+            const fetchedGames: Game[] = res.data;
+
+            setGames(fetchedGames);
+
+            const grouped = fetchedGames.reduce((acc: Record<string, Game[]>, game) => {
+                const dateKey: string = game.date!; 
+                if (!acc[dateKey]) acc[dateKey] = [];
+                acc[dateKey].push(game);
+                return acc;
+            }, {});
+            
+
+            setGroupedGames(grouped);
         } catch (err) {
-            alert("Failed to fetch games");
+            console.error(err);
         }
     };
 
-    function GameBlock({ game }: { game: Game }) {
-        return (
-            <div className="game-block">
-                <h3>Game ID: {game.gameId}</h3>
-                <p>Date: {new Date(game.date).toDateString()}</p>
-                <p>Teams: {game.homeTeam?.teamName} vs {game.awayTeam?.teamName}</p>
-                <p>Field: {game.field?.fieldName}</p>
-                <p>Center Ref: {getFullName(game.centerRef!)}</p>
-                <p>AR1: {getFullName(game.ar1!)}</p>
-                <p>AR2: {getFullName(game.ar2!)}</p>
+    return (
+        <div className={styles.container}>
+            <div className={styles.content}>
+                <button onClick={() => navigate("/create-game")}>Create New Game</button>
+                <h2>Games</h2>
+
+                {Object.entries(groupedGames).map(([date, games]) => (
+                    <div key={date}>
+                        <h3>{date}</h3>
+                        <GameBlock games={games} />
+                    </div>
+                ))}
             </div>
-        );
-    }
+        </div>
+    );
 };
 
 export default Dashboard;

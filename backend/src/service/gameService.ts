@@ -1,4 +1,4 @@
-import { PrismaClient, Game } from "@prisma/client";
+import { PrismaClient, Game, Prisma } from "@prisma/client";
 
 
 export async function getGamesForUser(prisma: PrismaClient , userId: number) {
@@ -14,7 +14,7 @@ export async function getGamesForUser(prisma: PrismaClient , userId: number) {
     });
 }
 
-export async function createGame(prisma: PrismaClient, gameData: Game) {
+export async function createGame(prisma: PrismaClient, gameData: Prisma.GameCreateInput) {
     return await prisma.game.create({
         data: gameData
     });
