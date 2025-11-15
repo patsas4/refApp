@@ -31,6 +31,13 @@ export function getGameDate(date: Date): string {
   return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
 }
 
-export function sortGamesByDate(a: Game, b: Game): number {
+export function sortGamesByTime(a: Game, b: Game): number {
   return sortTimeStrings(a.time || "", b.time || "");
+}
+
+export function sortGamesByDate(a: Game, b: Game): number {
+  if (!a.date || !b.date) return 0;
+  const dateA = new Date(a.date);
+  const dateB = new Date(b.date);
+  return dateA.getTime() - dateB.getTime();
 }

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import type Game from "../types/game";
-import { getGameDate } from "../types/game";
 import GameBlock from "../components/GameBlock";
 import styles from "../styles/Dashboard.module.css";
+import { sortGamesByDate } from "../types/game";
 
 const Dashboard = () => {
     const [games, setGames] = useState<Game[]>([]);
@@ -22,17 +22,18 @@ const Dashboard = () => {
 
             setGames(fetchedGames);
 
-            const grouped = fetchedGames.reduce((acc: Record<string, Game[]>, game) => {
-                const dateKey: string = game.date!; 
-                if (!acc[dateKey]) acc[dateKey] = [];
-                acc[dateKey].push(game);
-                return acc;
+            const grouped = fetchedGames
+                .sort((a, b) => sortGamesByDate(b, a))
+                    .reduce((acc: Record<string, Game[]>, game) => {
+                        const dateKey: string = game.date!; 
+                        if (!acc[dateKey]) acc[dateKey] = [];
+                        acc[dateKey].push(game);
+                        return acc;
             }, {});
             
-
             setGroupedGames(grouped);
         } catch (err) {
-            console.error(err);
+            console.error(err); 
         }
     };
 

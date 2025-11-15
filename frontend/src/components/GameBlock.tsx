@@ -1,7 +1,7 @@
 import type Game from "../types/game";
 import { getFullName } from "../types/user";
 import styles from "../styles/GameBlock.module.css"
-import { sortGamesByDate } from "../types/game";
+import { sortGamesByTime } from "../types/game";
 
 const GameBlock = ({ games }: { games: Game[] }) => (
     <div className={styles.container}>
@@ -18,7 +18,7 @@ const GameBlock = ({ games }: { games: Game[] }) => (
                 </tr>
             </thead>
             <tbody>
-                {games.sort(sortGamesByDate).map(game => (
+                {games.sort(sortGamesByTime).map(game => (
                     <tr key={game.gameId}>
                         <td>{game.time || ""}</td>
                         <td>{game.field?.fieldName || ""}</td>
