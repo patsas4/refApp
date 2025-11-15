@@ -1,8 +1,8 @@
 import express from "express";
-import authRoutes from "./routes/auth";
-import { authenticate } from "./middleware/auth";
-import gameRoutes from "./routes/games";
-import { errorHandler } from "./middleware/errorHandler";
+import authRoutes from "./routes/auth.js";
+import { authenticate } from "./middleware/auth.js";
+import gameRoutes from "./routes/games.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 app.use(express.json());
@@ -26,3 +26,4 @@ app.use("/game", gameRoutes);
 app.use(errorHandler);
 
 app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+ 

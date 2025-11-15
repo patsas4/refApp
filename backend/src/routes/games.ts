@@ -1,9 +1,9 @@
 import { NextFunction, Router, Response } from "express";
 import { Prisma, Game, PrismaClient } from "@prisma/client";
-import { AuthRequest } from "../middleware/auth";
-import { createGame, getGamesForUser } from "../service/gameService";
-import success from "../service/common";
-import { mapToInput } from "../service/mapper";
+import { AuthRequest } from "../middleware/auth.js";
+import { createGame, getGamesForUser } from "../service/gameService.js";
+import success from "../service/common.js";
+import { mapToInput } from "../service/mapper.js";
 
 const prisma = new PrismaClient();
 const router = Router();

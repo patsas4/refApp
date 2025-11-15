@@ -1,19 +1,37 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Debug TS Node",
-            //"runtimeArgs": ["--loader", "ts-node/esm"],
-            //"program": "${workspaceFolder}/backend/src/index.ts",
-            "skipFiles": ["<node_internals>/**"],
-            "envFile": "${workspaceFolder}/.env",
-            "cwd": "${workspaceFolder}/backend",
-            "processId": "${command:PickProcess}"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend Debug (ts-node ESM)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/backend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--loader",
+        "ts-node/esm",
+        "--inspect=9229",
+        "src/index.ts"
+      ],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal",
+      "env": {
+        "TS_NODE_PROJECT": "${workspaceFolder}/backend/tsconfig.json"
+      }
+    },
+    {
+      "name": "Frontend Debug (Vite)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "start-frontend",
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack Debug",
+      "configurations": ["Backend Debug (ts-node ESM)", "Frontend Debug (Vite)"]
+    }
+  ]
 }
