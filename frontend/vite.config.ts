@@ -16,7 +16,7 @@ export default defineConfig({
             const pathname = (url as any)?.pathname ?? new (globalThis as any).URL(String(url)).pathname;
             return pathname.startsWith('/api') || sameOrigin;
           },
-          handler: "CacheFirst" as const,
+          handler: "NetworkFirst" as const,
           options: {
             cacheName: "api-cache",
             cacheableResponse: {

@@ -14,29 +14,31 @@ datasource db {
 }
 
 model User {
-  userId         Int             @id @default(autoincrement())
-  email          String          @unique
-  firstName      String          @db.VarChar(256)
-  lastName       String          @db.VarChar(256)
-  phone          String          @db.VarChar(10)
-  password       String
-  createdAt      DateTime        @default(now())
-  createdBy      String          @db.VarChar(256)
-  deletedAt      DateTime?
-  deletedBy      String?         @db.VarChar(256)
-  leagues        League[]
-  teams          Team[]
-  teamInLeagues  TeamInLeague[]
-  createdGames   Game[]          @relation(name: "Created")
-  locations      Location[]
-  fields         Field[]
-  centerGames    Game[]          @relation(name: "Center")
-  ar1Games       Game[]          @relation(name: "Ar1")
-  ar2Games       Game[]          @relation(name: "Ar2")
-  assignerOf     AssignerToRef[] @relation(name: "Assigner")
-  refTo          AssignerToRef[] @relation(name: "Ref")
-  roles          Role[]
-  assignerToRefs AssignerToRef[] @relation(name: "CreatedBy")
+  userId                Int             @id @default(autoincrement())
+  email                 String          @unique
+  firstName             String          @db.VarChar(256)
+  lastName              String          @db.VarChar(256)
+  phone                 String          @db.VarChar(10)
+  password              String
+  createdAt             DateTime        @default(now())
+  createdBy             String          @db.VarChar(256)
+  deletedAt             DateTime?
+  deletedBy             String?         @db.VarChar(256)
+  leagues               League[]
+  teams                 Team[]
+  teamInLeagues         TeamInLeague[]
+  createdGames          Game[]          @relation(name: "Created")
+  locations             Location[]
+  fields                Field[]
+  centerGames           Game[]          @relation(name: "Center")
+  ar1Games              Game[]          @relation(name: "Ar1")
+  ar2Games              Game[]          @relation(name: "Ar2")
+  assignerOf            AssignerToRef[] @relation(name: "Assigner")
+  refTo                 AssignerToRef[] @relation(name: "Ref")
+  roles                 Role[]
+  assignerToRefs        AssignerToRef[] @relation(name: "CreatedBy")
+  assignmentsAsAssigner Assignment[]    @relation(name: "Assigner")
+  assignmentsAsRef      Assignment[]    @relation(name: "Ref")
 
   @@index([firstName])
   @@index([lastName])
@@ -88,26 +90,27 @@ model TeamInLeague {
 }
 
 model Game {
-  gameId          BigInt    @id @default(autoincrement())
+  gameId          BigInt       @id @default(autoincrement())
   homeTeamId      Int?
   awayTeamId      Int?
   leagueId        Int?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime     @default(now())
   createdByUserId Int
-  createdByUser   User      @relation(fields: [createdByUserId], references: [userId], name: "Created")
-  date            String?   @db.VarChar(10)
-  time            String?   @db.VarChar(8)
+  createdByUser   User         @relation(fields: [createdByUserId], references: [userId], name: "Created")
+  date            String?      @db.VarChar(10)
+  time            String?      @db.VarChar(8)
   deletedAt       DateTime?
-  homeTeam        Team?     @relation(fields: [homeTeamId], references: [teamId], name: "Home")
-  awayTeam        Team?     @relation(fields: [awayTeamId], references: [teamId], name: "Away")
+  homeTeam        Team?        @relation(fields: [homeTeamId], references: [teamId], name: "Home")
+  awayTeam        Team?        @relation(fields: [awayTeamId], references: [teamId], name: "Away")
   fieldId         Int?
-  field           Field?    @relation(fields: [fieldId], references: [fieldId])
+  field           Field?       @relation(fields: [fieldId], references: [fieldId])
   centerRefUserId Int?
-  centerRefUser   User?     @relation(fields: [centerRefUserId], references: [userId], name: "Center")
+  centerRefUser   User?        @relation(fields: [centerRefUserId], references: [userId], name: "Center")
   ar1UserId       Int?
   ar2UserId       Int?
-  ar1User         User?     @relation(fields: [ar1UserId], references: [userId], name: "Ar1")
-  ar2User         User?     @relation(fields: [ar2UserId], references: [userId], name: "Ar2")
+  ar1User         User?        @relation(fields: [ar1UserId], references: [userId], name: "Ar1")
+  ar2User         User?        @relation(fields: [ar2UserId], references: [userId], name: "Ar2")
+  assignments     Assignment[]
 
   @@index([createdByUserId])
   @@index([homeTeamId])
@@ -151,10 +154,10 @@ model Location {
 
 model AssignerToRef {
   assignerToRefId Int       @id @default(autoincrement())
-  assignerId      Int
-  refId           Int
-  assigner        User      @relation(fields: [assignerId], references: [userId], name: "Assigner")
-  ref             User      @relation(fields: [refId], references: [userId], name: "Ref")
+  assignerUserId  Int
+  refUserId       Int
+  assigner        User      @relation(fields: [assignerUserId], references: [userId], name: "Assigner")
+  ref             User      @relation(fields: [refUserId], references: [userId], name: "Ref")
   createdAt       DateTime  @default(now())
   deletedAt       DateTime?
   createdByUserId Int
@@ -164,4 +167,31 @@ model AssignerToRef {
 enum Role {
   Assigner
   Ref
+}
+
+model Assignment {
+  assignmentId   Int       @id @default(autoincrement())
+  assignerUserId Int
+  refUserId      Int
+  gameId         BigInt
+  assignedAt     DateTime  @default(now())
+  assigner       User      @relation(fields: [assignerUserId], references: [userId], name: "Assigner")
+  ref            User      @relation(fields: [refUserId], references: [userId], name: "Ref")
+  game           Game      @relation(fields: [gameId], references: [gameId])
+  refType        RefType
+  isAccepted     Boolean   @default(false)
+  isAnswered     Boolean   @default(false)
+  responseAt     DateTime?
+  createdAt      DateTime  @default(now())
+  deletedAt      DateTime?
+
+  @@index([assignerUserId])
+  @@index([refUserId])
+  @@index([gameId])
+}
+
+enum RefType {
+  Center
+  AR1
+  AR2
 }
