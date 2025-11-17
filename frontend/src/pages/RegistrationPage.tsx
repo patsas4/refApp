@@ -7,13 +7,19 @@ const RegistrationPage = () => {
     const [phone, setPhone] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [isRef, setIsRef] = useState("");
-    const [isAssigner, setIsAssigner] = useState("");
+    const [isRef, setIsRef] = useState("Ref");
+    const [isAssigner, setIsAssigner] = useState("Assigner");
 
     const handleRegistration = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const roles = ["Ref"];
+            const roles : string[] = [];
+            if (isAssigner) {
+                roles.push("Assigner");
+            }
+            if (isRef) {
+                roles.push("Ref");
+            }
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

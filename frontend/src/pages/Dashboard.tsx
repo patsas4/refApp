@@ -23,7 +23,7 @@ const Dashboard = () => {
             setGames(fetchedGames);
 
             const grouped = fetchedGames
-                .sort((a, b) => sortGamesByDate(b, a))
+                .sort(sortGamesByDate)
                     .reduce((acc: Record<string, Game[]>, game) => {
                         const dateKey: string = game.date!; 
                         if (!acc[dateKey]) acc[dateKey] = [];
